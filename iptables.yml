@@ -1,0 +1,25 @@
+---
+- name: Restore iptables settings
+  hosts: serv
+  tasks:
+    - name: Copy iptables rules file
+      copy:
+        src: /home/alex/ansible/iptables.rules
+        dest: /root
+        mode: 0644
+    - name: Run iptables-restore command
+      shell: iptables-restore < /root/iptables.rules
+    - name: Disable Password Authentication
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify:
+       - restart sshd
+  
+  handlers:
+   - name: restart sshd
+     systemd:
+       name: sshd
+       state: restarted
