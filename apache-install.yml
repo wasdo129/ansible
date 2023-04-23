@@ -1,0 +1,31 @@
+---
+- name: Install Apache and Upload my Web Page
+  hosts: all
+  become: yes
+
+  vars:
+    source_file: /home/alex/ansible/mysite/index.html
+    destin_file: /var/www/html
+
+  tasks:
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+
+  - name: Upgrade all packages
+    apt:
+      upgrade: dist
+
+  - name: Install Apache Web test_server
+    apt: name=apache2 state=latest
+
+  - name: Copy my homepage to servers
+    copy: src={{ source_file }} dest={{ destin_file }} mode=0555
+    notify: Restart Apache
+
+  - name: Start Web servers and make it enable
+    service: name=apache2 state=started enabled=yes
+
+  handlers:
+  - name: Restart Apache
+    service: name=apache2 state=restarted
