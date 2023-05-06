@@ -1,10 +1,10 @@
 ---
 - name: Restore iptables settings
-  hosts: serv
+  hosts: ng
   tasks:
     - name: Copy iptables rules file
       copy:
-        src: /home/alex/ansible/iptables.rules
+        src: /home/alex/ansible/balancer/iptables.rules
         dest: /root
         mode: 0644
     - name: Run iptables-restore command
@@ -17,6 +17,14 @@
         state: present
       notify:
        - restart sshd
+    - name: Install iptables-persistent
+      apt:
+        name: "{{item}}"
+        state: latest
+        update_cache: yes
+      loop:
+        - iptables-persistent
+        - netfilter-persistent
   
   handlers:
    - name: restart sshd
